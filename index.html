@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ChatGPT Chat Cleaner — Select and bulk-delete ChatGPT conversations. Free Chrome extension, keyboard-first, zero tracking.">
+  <title>ChatGPT Chat Cleaner — Bulk Delete Conversations</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #232323;
+      --accent: #10a37f;
+      --accent-hover: #0d9270;
+      --accent-dim: rgba(16,163,127,0.12);
+      --text: #f0f0f0;
+      --text-muted: #8a8a9a;
+      --border: #2a2a2a;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,15,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 60px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 15px; letter-spacing: -0.3px;
+    }
+    .logo img { width: 26px; height: 26px; }
+    .logo span { display: none; }
+    @media(min-width:480px){ .logo span { display: inline; } }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+
+    .lang-select {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 13px; font-family: inherit;
+      cursor: pointer; outline: none;
+    }
+    .lang-select:focus { border-color: var(--accent); }
+
+    .btn-ghost {
+      padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      color: var(--text-muted); transition: color .2s;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    .btn-primary {
+      padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      background: var(--accent); color: #fff; transition: background .2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 24px 80px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-dim); border: 1px solid rgba(16,163,127,0.3);
+      color: var(--accent); border-radius: 100px;
+      padding: 5px 14px; font-size: 13px; font-weight: 500;
+      margin-bottom: 28px;
+    }
+    .hero-badge::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0;
+    }
+    .hero-title {
+      font-size: clamp(32px, 6vw, 62px);
+      font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;
+      max-width: 820px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, #fff 0%, #a0a0b0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px); color: var(--text-muted);
+      max-width: 580px; margin: 0 auto 36px; line-height: 1.6;
+    }
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center; margin-bottom: 24px;
+    }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 700;
+      background: var(--accent); color: #fff; transition: background .2s, transform .1s;
+    }
+    .btn-cta:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-cta svg { width: 18px; height: 18px; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600;
+      border: 1px solid var(--border); color: var(--text-muted);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-outline:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .hero-trust {
+      font-size: 13px; color: var(--text-muted); letter-spacing: 0.3px;
+    }
+
+    /* ── DEMO MOCKUP ── */
+    .demo-wrap {
+      max-width: 800px; margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+    .demo-browser {
+      background: #1c1c1c; border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .demo-titlebar {
+      display: flex; align-items: center; gap: 8px;
+      background: #141414; padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .demo-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .demo-dot.red   { background: #ff5f57; }
+    .demo-dot.yellow{ background: #febc2e; }
+    .demo-dot.green { background: #28c840; }
+    .demo-url {
+      flex: 1; text-align: center; font-size: 12px; color: var(--text-muted);
+      background: #1e1e1e; border-radius: 6px; padding: 4px 12px;
+      max-width: 240px; margin: 0 auto;
+    }
+    .demo-body {
+      display: flex; min-height: 280px;
+    }
+    .demo-sidebar {
+      width: 200px; min-width: 200px;
+      background: #171717; border-right: 1px solid var(--border);
+      padding: 12px 8px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .demo-sidebar-title {
+      font-size: 11px; color: var(--text-muted); padding: 4px 8px 8px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .demo-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 7px;
+      font-size: 12px; color: var(--text-muted);
+      transition: background .2s;
+      cursor: default;
+    }
+    .demo-item.selected {
+      background: rgba(16,163,127,0.15);
+      color: var(--text);
+    }
+    .demo-check {
+      width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .demo-item.selected .demo-check {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .demo-check-icon {
+      width: 9px; height: 9px; fill: none; stroke: #fff;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .demo-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .demo-main {
+      flex: 1; background: #1a1a1a; padding: 24px; position: relative;
+      display: flex; align-items: flex-end;
+    }
+    .demo-toolbar {
+      width: 100%;
+      background: #111; border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .demo-toolbar-left {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text);
+    }
+    .demo-toolbar-left strong { color: var(--accent); }
+    .demo-kbd {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace;
+      color: var(--text-muted);
+    }
+    .demo-del-btn {
+      background: #dc2626; color: #fff;
+      border: none; border-radius: 7px; padding: 7px 14px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── VIDEO ── */
+    .video-section {
+      padding: 0 24px 80px;
+      text-align: center;
+    }
+    .section-label {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--accent); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(24px, 4vw, 38px); font-weight: 800;
+      letter-spacing: -0.8px; margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-muted); margin-bottom: 40px;
+    }
+    .video-frame {
+      max-width: 800px; margin: 0 auto;
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      aspect-ratio: 16/9;
+    }
+    .video-frame iframe {
+      width: 100%; height: 100%; display: block; border: none;
+    }
+
+    /* ── FEATURES ── */
+    .features-section {
+      padding: 80px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .features-header { text-align: center; margin-bottom: 56px; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .feat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color .2s;
+    }
+    .feat-card:hover { border-color: rgba(16,163,127,0.4); }
+    .feat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--accent-dim); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .feat-icon svg { width: 20px; height: 20px; }
+    .feat-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+    .feat-desc { font-size: 14px; color: var(--text-muted); line-height: 1.55; }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      padding: 80px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .how-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .how-inner .section-title { margin-bottom: 48px; }
+    .steps { list-style: none; display: flex; flex-direction: column; gap: 20px; text-align: left; }
+    .step {
+      display: flex; align-items: flex-start; gap: 16px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+    }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .step-text { font-size: 15px; padding-top: 4px; }
+
+    /* ── SHORTCUTS ── */
+    .shortcuts-section {
+      padding: 80px 24px;
+      max-width: 700px; margin: 0 auto;
+      text-align: center;
+    }
+    .shortcuts-section .section-title { margin-bottom: 40px; }
+    .shortcuts-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 14px;
+    }
+    .shortcuts-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+    .shortcuts-table tr:last-child { border-bottom: none; }
+    .shortcuts-table td {
+      padding: 14px 12px; text-align: left;
+    }
+    .shortcuts-table td:first-child {
+      white-space: nowrap; width: 1%;
+    }
+    .shortcuts-table td:last-child { color: var(--text-muted); }
+    .kbd {
+      display: inline-block;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 5px; padding: 3px 8px;
+      font-family: monospace; font-size: 12px;
+      color: var(--text); margin: 2px 2px;
+    }
+
+    /* ── PRIVACY ── */
+    .privacy-section {
+      padding: 80px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .privacy-inner {
+      max-width: 620px; margin: 0 auto; text-align: center;
+    }
+    .privacy-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      background: var(--accent-dim); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .privacy-icon svg { width: 28px; height: 28px; }
+    .privacy-title { font-size: 26px; font-weight: 700; margin-bottom: 14px; }
+    .privacy-desc { font-size: 16px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.7; }
+    .privacy-perm {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 16px; font-size: 13px; color: var(--text-muted);
+    }
+    .privacy-perm::before { content: '🔒'; }
+
+    /* ── CTA BOTTOM ── */
+    .cta-section {
+      padding: 100px 24px;
+      text-align: center;
+    }
+    .cta-section .section-title { margin-bottom: 12px; }
+    .cta-section .section-sub { margin-bottom: 32px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 16px;
+      align-items: center; justify-content: space-between;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+    .footer-logo img { width: 22px; height: 22px; }
+    .footer-tagline { font-size: 13px; color: var(--text-muted); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--text-muted); transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 12px; color: var(--text-muted); width: 100%; text-align: center; margin-top: 8px; }
+
+    /* ── RTL ── */
+    [dir="rtl"] .logo, [dir="rtl"] .nav-actions,
+    [dir="rtl"] .demo-toolbar-left, [dir="rtl"] .step { flex-direction: row-reverse; }
+    [dir="rtl"] .demo-sidebar { border-right: none; border-left: 1px solid var(--border); }
+    [dir="rtl"] .shortcuts-table td { text-align: right; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:600px) {
+      .demo-sidebar { display: none; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .footer-links { gap: 12px; }
+      .btn-ghost { display: none; }
+    }
+    @media(max-width:400px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <img src="assets/icon.svg" alt="ChatGPT Chat Cleaner">
+      <span>ChatGPT Chat Cleaner</span>
+    </a>
+    <div class="nav-actions">
+      <select class="lang-select" id="langSelect" aria-label="Language"></select>
+      <a href="https://github.com/your-username/chatgpt-bulk-delete" class="btn-ghost" data-i18n="nav_github">GitHub</a>
+      <a href="#" id="navInstall" class="btn-primary" data-i18n="nav_install">Add to Chrome</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge" data-i18n="hero_badge">Chrome Extension · Free</div>
+  <h1 class="hero-title" data-i18n="hero_title">Clean Your ChatGPT History in Seconds</h1>
+  <p class="hero-sub" data-i18n="hero_sub">Select and bulk-delete dozens of conversations at once. Keyboard-first, no popups, pure speed.</p>
+  <div class="hero-ctas">
+    <a href="#" id="heroCta" class="btn-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span data-i18n="hero_cta">Add to Chrome — Free</span>
+    </a>
+    <a href="https://github.com/your-username/chatgpt-bulk-delete" class="btn-outline" data-i18n="hero_github">View on GitHub</a>
+  </div>
+  <p class="hero-trust" data-i18n="hero_trust">Zero tracking · Runs locally · Free forever</p>
+</section>
+
+<!-- DEMO MOCKUP -->
+<div class="demo-wrap">
+  <div class="demo-browser">
+    <div class="demo-titlebar">
+      <span class="demo-dot red"></span>
+      <span class="demo-dot yellow"></span>
+      <span class="demo-dot green"></span>
+      <span class="demo-url">chatgpt.com</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-sidebar">
+        <div class="demo-sidebar-title">Chats</div>
+        <div class="demo-item selected">
+          <div class="demo-check">
+            <svg class="demo-check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+          </div>
+          <span class="demo-label">API research notes</span>
+        </div>
+        <div class="demo-item selected">
+          <div class="demo-check">
+            <svg class="demo-check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+          </div>
+          <span class="demo-label">Today's project plan</span>
+        </div>
+        <div class="demo-item selected">
+          <div class="demo-check">
+            <svg class="demo-check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+          </div>
+          <span class="demo-label">Code review session</span>
+        </div>
+        <div class="demo-item">
+          <div class="demo-check"></div>
+          <span class="demo-label">Old chat — Apr 2024</span>
+        </div>
+        <div class="demo-item">
+          <div class="demo-check"></div>
+          <span class="demo-label">Old chat — Mar 2024</span>
+        </div>
+      </div>
+      <div class="demo-main">
+        <div class="demo-toolbar">
+          <div class="demo-toolbar-left">
+            <strong id="demoCount">3</strong>
+            <span id="demoLabel">chats selected</span>
+            <span class="demo-kbd">↵ ↵</span>
+          </div>
+          <button class="demo-del-btn" id="demoDelBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO -->
+<section class="video-section">
+  <p class="section-label" data-i18n="video_label">Demo</p>
+  <h2 class="section-title" data-i18n="video_title">See it in action</h2>
+  <p class="section-sub" data-i18n="video_sub">Watch how fast you can clean up hundreds of chats</p>
+  <div class="video-frame">
+    <iframe
+      src="https://www.youtube.com/embed/mV_MqBpeKaY"
+      title="ChatGPT Chat Cleaner demo"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="features-header">
+    <p class="section-label" data-i18n="features_label">Features</p>
+    <h2 class="section-title" data-i18n="features_title">Everything you need</h2>
+  </div>
+  <div class="features-grid">
+    <!-- 1 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4h6v2"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat1_title">Bulk Delete</div>
+      <div class="feat-desc" data-i18n="feat1_desc">Remove dozens or hundreds of conversations in one action.</div>
+    </div>
+    <!-- 2 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="2"/>
+          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h4M14 14h4"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat2_title">Keyboard-First</div>
+      <div class="feat-desc" data-i18n="feat2_desc">Full workflow without touching the mouse: select, confirm, delete.</div>
+    </div>
+    <!-- 3 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat3_title">Select All</div>
+      <div class="feat-desc" data-i18n="feat3_desc">Ctrl+A selects every visible conversation instantly.</div>
+    </div>
+    <!-- 4 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat4_title">Double Confirm</div>
+      <div class="feat-desc" data-i18n="feat4_desc">A second keypress required before deletion — accidental wipes are impossible.</div>
+    </div>
+    <!-- 5 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="12" x2="2" y2="12"/>
+          <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+          <line x1="6" y1="16" x2="6.01" y2="16"/>
+          <line x1="10" y1="16" x2="10.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat5_title">Progress Bar</div>
+      <div class="feat-desc" data-i18n="feat5_desc">Real-time feedback while deletions are processed.</div>
+    </div>
+    <!-- 6 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat6_title">20 Languages</div>
+      <div class="feat-desc" data-i18n="feat6_desc">UI adapts to your browser locale automatically.</div>
+    </div>
+    <!-- 7 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat7_title">Zero Tracking</div>
+      <div class="feat-desc" data-i18n="feat7_desc">No analytics, no telemetry. All logic runs locally in your browser.</div>
+    </div>
+    <!-- 8 -->
+    <div class="feat-card">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </div>
+      <div class="feat-title" data-i18n="feat8_title">Auto Theme</div>
+      <div class="feat-desc" data-i18n="feat8_desc">Automatically matches ChatGPT's dark or light theme.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <p class="section-label" data-i18n="how_label">How it works</p>
+    <h2 class="section-title" data-i18n="how_title">Five steps to a clean slate</h2>
+    <ol class="steps">
+      <li class="step"><span class="step-num">1</span><span class="step-text" data-i18n="step1">Open chatgpt.com in Chrome</span></li>
+      <li class="step"><span class="step-num">2</span><span class="step-text" data-i18n="step2">Click "Select chats" or press Ctrl+Shift+K</span></li>
+      <li class="step"><span class="step-num">3</span><span class="step-text" data-i18n="step3">Click conversations to toggle, or press Ctrl+A to select all</span></li>
+      <li class="step"><span class="step-num">4</span><span class="step-text" data-i18n="step4">Press Delete — then press again to confirm</span></li>
+      <li class="step"><span class="step-num">5</span><span class="step-text" data-i18n="step5">Done — selected chats are deleted instantly</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- SHORTCUTS -->
+<section class="shortcuts-section">
+  <p class="section-label" data-i18n="shortcuts_label">Shortcuts</p>
+  <h2 class="section-title" data-i18n="shortcuts_title">Keyboard Shortcuts</h2>
+  <table class="shortcuts-table">
+    <tr>
+      <td><span class="kbd">Ctrl+Shift+K</span> <span class="kbd">⌘⇧K</span></td>
+      <td data-i18n="key_toggle_mode">Toggle Selection mode</td>
+    </tr>
+    <tr>
+      <td><span class="kbd">Click</span> <span class="kbd">Space</span></td>
+      <td data-i18n="key_toggle_chat">Toggle chat selection</td>
+    </tr>
+    <tr>
+      <td><span class="kbd">Ctrl+A</span> <span class="kbd">⌘A</span></td>
+      <td data-i18n="key_select_all">Select all chats</td>
+    </tr>
+    <tr>
+      <td><span class="kbd">Ctrl+D</span> <span class="kbd">⌘D</span></td>
+      <td data-i18n="key_clear">Clear selection</td>
+    </tr>
+    <tr>
+      <td><span class="kbd">Enter</span> <span class="kbd">Enter</span></td>
+      <td data-i18n="key_delete">Confirm and delete</td>
+    </tr>
+    <tr>
+      <td><span class="kbd">Esc</span></td>
+      <td data-i18n="key_exit">Exit Selection mode</td>
+    </tr>
+  </table>
+</section>
+
+<!-- PRIVACY -->
+<section class="privacy-section">
+  <div class="privacy-inner">
+    <div class="privacy-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <h2 class="privacy-title" data-i18n="privacy_title">Your privacy is protected</h2>
+    <p class="privacy-desc" data-i18n="privacy_desc">The extension runs entirely within your browser tab. It uses ChatGPT's own API with your existing login session — no data ever reaches any third-party server.</p>
+    <span class="privacy-perm" data-i18n="privacy_perm">Only one permission required: access to chatgpt.com</span>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<section class="cta-section">
+  <p class="section-label" data-i18n="cta_label">Get started</p>
+  <h2 class="section-title" data-i18n="cta_title">Ready to clean up?</h2>
+  <p class="section-sub" data-i18n="cta_sub">Free, open source, takes 10 seconds to install.</p>
+  <a href="#" id="ctaBtn" class="btn-cta" style="display:inline-flex">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    <span data-i18n="cta_btn">Add to Chrome — Free</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">
+        <img src="assets/icon.svg" alt="">
+        <span>ChatGPT Chat Cleaner</span>
+      </div>
+      <div class="footer-tagline" data-i18n="footer_tagline" style="margin-top:4px">Fast, private, free.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#" id="footerInstall" data-i18n="footer_install">Install</a>
+      <a href="https://github.com/your-username/chatgpt-bulk-delete" data-i18n="footer_github">GitHub</a>
+    </div>
+    <div class="footer-copy" data-i18n="footer_rights">© 2026 ChatGPT Chat Cleaner</div>
+  </div>
+</footer>
+
+<script>
+// Chrome Web Store URL — update once published
+const CHROME_STORE_URL = '#';
+const GITHUB_URL = 'https://github.com/your-username/chatgpt-bulk-delete';
+
+// Set all install links
+document.querySelectorAll('#navInstall,#heroCta,#ctaBtn,#footerInstall[href="#"]').forEach(el => {
+  if (el.id !== 'footerInstall') el.href = CHROME_STORE_URL;
+});
+document.getElementById('footerInstall').href = CHROME_STORE_URL;
+
+// ── TRANSLATIONS ──
+const I18N = {
+  en: { dir:'ltr', name:'English', strings:{
+    meta_desc:'ChatGPT Chat Cleaner — Select and bulk-delete ChatGPT conversations. Free Chrome extension, keyboard-first, zero tracking.',
+    page_title:'ChatGPT Chat Cleaner — Bulk Delete Conversations',
+    nav_install:'Add to Chrome', nav_github:'GitHub',
+    hero_badge:'Chrome Extension · Free',
+    hero_title:'Clean Your ChatGPT History in Seconds',
+    hero_sub:'Select and bulk-delete dozens of conversations at once. Keyboard-first, no popups, pure speed.',
+    hero_cta:'Add to Chrome — Free', hero_github:'View on GitHub',
+    hero_trust:'Zero tracking · Runs locally · Free forever',
+    video_label:'Demo', video_title:'See it in action',
+    video_sub:'Watch how fast you can clean up hundreds of chats',
+    features_label:'Features', features_title:'Everything you need',
+    feat1_title:'Bulk Delete', feat1_desc:'Remove dozens or hundreds of conversations in one action.',
+    feat2_title:'Keyboard-First', feat2_desc:'Full workflow without touching the mouse: select, confirm, delete.',
+    feat3_title:'Select All', feat3_desc:'Ctrl+A selects every visible conversation instantly.',
+    feat4_title:'Double Confirm', feat4_desc:'A second keypress required before deletion — accidental wipes are impossible.',
+    feat5_title:'Progress Bar', feat5_desc:'Real-time feedback while deletions are processed.',
+    feat6_title:'20 Languages', feat6_desc:'UI adapts to your browser locale automatically.',
+    feat7_title:'Zero Tracking', feat7_desc:'No analytics, no telemetry. All logic runs locally in your browser.',
+    feat8_title:'Auto Theme', feat8_desc:"Automatically matches ChatGPT's dark or light theme.",
+    how_label:'How it works', how_title:'Five steps to a clean slate',
+    step1:'Open chatgpt.com in Chrome',
+    step2:'Click "Select chats" or press Ctrl+Shift+K',
+    step3:'Click conversations to toggle, or press Ctrl+A to select all',
+    step4:'Press Delete — then press again to confirm',
+    step5:'Done — selected chats are deleted instantly',
+    shortcuts_label:'Shortcuts', shortcuts_title:'Keyboard Shortcuts',
+    key_toggle_mode:'Toggle Selection mode', key_toggle_chat:'Toggle chat selection',
+    key_select_all:'Select all chats', key_clear:'Clear selection',
+    key_delete:'Confirm and delete', key_exit:'Exit Selection mode',
+    privacy_title:'Your privacy is protected',
+    privacy_desc:"The extension runs entirely within your browser tab. It uses ChatGPT's own API with your existing login session — no data ever reaches any third-party server.",
+    privacy_perm:'Only one permission required: access to chatgpt.com',
+    cta_label:'Get started', cta_title:'Ready to clean up?',
+    cta_sub:'Free, open source, takes 10 seconds to install.',
+    cta_btn:'Add to Chrome — Free',
+    footer_tagline:'Fast, private, free.',
+    footer_install:'Install', footer_github:'Source Code',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chats selected', demo_del:'Delete'
+  }},
+  ru: { dir:'ltr', name:'Русский', strings:{
+    meta_desc:'ChatGPT Chat Cleaner — выбирайте и массово удаляйте чаты ChatGPT. Бесплатное расширение для Chrome, управление клавиатурой, без слежки.',
+    page_title:'ChatGPT Chat Cleaner — Массовое удаление чатов',
+    nav_install:'Добавить в Chrome', nav_github:'GitHub',
+    hero_badge:'Расширение Chrome · Бесплатно',
+    hero_title:'Очистите историю ChatGPT за секунды',
+    hero_sub:'Выбирайте и удаляйте десятки чатов за одно действие. Управление клавиатурой, без всплывающих окон, максимальная скорость.',
+    hero_cta:'Добавить в Chrome — Бесплатно', hero_github:'Открыть на GitHub',
+    hero_trust:'Без слежки · Работает локально · Бесплатно навсегда',
+    video_label:'Демо', video_title:'Посмотрите в действии',
+    video_sub:'Как быстро можно удалить сотни чатов',
+    features_label:'Возможности', features_title:'Всё что нужно',
+    feat1_title:'Массовое удаление', feat1_desc:'Удаляйте десятки или сотни чатов за одно действие.',
+    feat2_title:'Только клавиатура', feat2_desc:'Весь процесс без мыши: выбор, подтверждение, удаление.',
+    feat3_title:'Выбрать всё', feat3_desc:'Ctrl+A мгновенно выделяет все видимые чаты.',
+    feat4_title:'Двойное подтверждение', feat4_desc:'Требуется второе нажатие перед удалением — случайное удаление невозможно.',
+    feat5_title:'Прогресс-бар', feat5_desc:'Отображение прогресса в реальном времени при удалении.',
+    feat6_title:'20 языков', feat6_desc:'Интерфейс автоматически адаптируется под язык браузера.',
+    feat7_title:'Без слежки', feat7_desc:'Никакой аналитики, никакой телеметрии. Вся логика работает локально.',
+    feat8_title:'Авто-тема', feat8_desc:'Автоматически подстраивается под тёмную или светлую тему ChatGPT.',
+    how_label:'Как это работает', how_title:'Пять шагов до чистой истории',
+    step1:'Откройте chatgpt.com в Chrome',
+    step2:'Нажмите кнопку «Выбрать чаты» или Ctrl+Shift+K',
+    step3:'Кликайте на чаты для выбора или нажмите Ctrl+A для выбора всех',
+    step4:'Нажмите Delete — затем ещё раз для подтверждения',
+    step5:'Готово — выбранные чаты удалены мгновенно',
+    shortcuts_label:'Горячие клавиши', shortcuts_title:'Горячие клавиши',
+    key_toggle_mode:'Включить/выключить режим выбора', key_toggle_chat:'Переключить выбор чата',
+    key_select_all:'Выбрать все чаты', key_clear:'Сбросить выбор',
+    key_delete:'Подтвердить и удалить', key_exit:'Выйти из режима выбора',
+    privacy_title:'Ваша конфиденциальность защищена',
+    privacy_desc:'Расширение работает полностью в вашей вкладке браузера. Оно использует собственный API ChatGPT с вашей текущей сессией — никакие данные не покидают ваш браузер.',
+    privacy_perm:'Требуется только одно разрешение: доступ к chatgpt.com',
+    cta_label:'Начать', cta_title:'Готовы навести порядок?',
+    cta_sub:'Бесплатно, с открытым кодом, установка займёт 10 секунд.',
+    cta_btn:'Добавить в Chrome — Бесплатно',
+    footer_tagline:'Быстро, безопасно, бесплатно.',
+    footer_install:'Установить', footer_github:'Исходный код',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'чатов выбрано', demo_del:'Удалить'
+  }},
+  de: { dir:'ltr', name:'Deutsch', strings:{
+    nav_install:'Zu Chrome hinzufügen', nav_github:'GitHub',
+    hero_badge:'Chrome-Erweiterung · Kostenlos',
+    hero_title:'ChatGPT-Verlauf in Sekunden bereinigen',
+    hero_sub:'Wähle und lösche dutzende Gespräche auf einmal. Tastaturorientiert, ohne Popups, maximale Geschwindigkeit.',
+    hero_cta:'Zu Chrome hinzufügen — Kostenlos', hero_github:'Auf GitHub ansehen',
+    hero_trust:'Kein Tracking · Läuft lokal · Kostenlos für immer',
+    video_label:'Demo', video_title:'In Aktion sehen',
+    video_sub:'So schnell kannst du hunderte Chats bereinigen',
+    features_label:'Funktionen', features_title:'Alles was du brauchst',
+    feat1_title:'Massenlöschung', feat1_desc:'Dutzende oder hunderte Gespräche in einer Aktion entfernen.',
+    feat2_title:'Tastatur-First', feat2_desc:'Kompletter Workflow ohne Maus: auswählen, bestätigen, löschen.',
+    feat3_title:'Alles auswählen', feat3_desc:'Strg+A markiert sofort alle sichtbaren Gespräche.',
+    feat4_title:'Doppelte Bestätigung', feat4_desc:'Zweiter Tastendruck vor dem Löschen erforderlich — versehentliches Löschen unmöglich.',
+    feat5_title:'Fortschrittsanzeige', feat5_desc:'Echtzeit-Feedback während der Löschvorgänge.',
+    feat6_title:'20 Sprachen', feat6_desc:'Oberfläche passt sich automatisch an die Browser-Sprache an.',
+    feat7_title:'Kein Tracking', feat7_desc:'Keine Analyse, keine Telemetrie. Die gesamte Logik läuft lokal.',
+    feat8_title:'Automatisches Theme', feat8_desc:'Passt sich automatisch dem dunklen oder hellen ChatGPT-Theme an.',
+    how_label:'So funktioniert es', how_title:'Fünf Schritte zur sauberen Historie',
+    step1:'Öffne chatgpt.com in Chrome',
+    step2:'Klicke auf "Chats auswählen" oder drücke Strg+Umschalt+K',
+    step3:'Klicke auf Gespräche zum Auswählen oder drücke Strg+A für alle',
+    step4:'Drücke Entf — dann nochmals zur Bestätigung',
+    step5:'Fertig — ausgewählte Chats werden sofort gelöscht',
+    shortcuts_label:'Tastenkürzel', shortcuts_title:'Tastenkürzel',
+    key_toggle_mode:'Auswahlmodus ein-/ausschalten', key_toggle_chat:'Chat-Auswahl umschalten',
+    key_select_all:'Alle Chats auswählen', key_clear:'Auswahl aufheben',
+    key_delete:'Bestätigen und löschen', key_exit:'Auswahlmodus verlassen',
+    privacy_title:'Deine Privatsphäre ist geschützt',
+    privacy_desc:'Die Erweiterung läuft vollständig in deinem Browser-Tab. Sie verwendet ChatGPTs eigene API mit deiner bestehenden Sitzung — keine Daten verlassen deinen Browser.',
+    privacy_perm:'Nur eine Berechtigung erforderlich: Zugriff auf chatgpt.com',
+    cta_label:'Loslegen', cta_title:'Bereit aufzuräumen?',
+    cta_sub:'Kostenlos, Open Source, Installation dauert 10 Sekunden.',
+    cta_btn:'Zu Chrome hinzufügen — Kostenlos',
+    footer_tagline:'Schnell, sicher, kostenlos.',
+    footer_install:'Installieren', footer_github:'Quellcode',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'Chats ausgewählt', demo_del:'Löschen'
+  }},
+  fr: { dir:'ltr', name:'Français', strings:{
+    nav_install:'Ajouter à Chrome', nav_github:'GitHub',
+    hero_badge:'Extension Chrome · Gratuit',
+    hero_title:'Nettoyez votre historique ChatGPT en quelques secondes',
+    hero_sub:'Sélectionnez et supprimez des dizaines de conversations en une action. Clavier en priorité, sans popups, vitesse maximale.',
+    hero_cta:'Ajouter à Chrome — Gratuit', hero_github:'Voir sur GitHub',
+    hero_trust:'Zéro tracking · Fonctionne localement · Gratuit pour toujours',
+    video_label:'Démo', video_title:'Voir en action',
+    video_sub:'Regardez comment nettoyer des centaines de chats rapidement',
+    features_label:'Fonctionnalités', features_title:'Tout ce dont vous avez besoin',
+    feat1_title:'Suppression en masse', feat1_desc:'Supprimez des dizaines ou centaines de conversations en une action.',
+    feat2_title:'Clavier en priorité', feat2_desc:'Flux de travail complet sans souris : sélectionner, confirmer, supprimer.',
+    feat3_title:'Tout sélectionner', feat3_desc:'Ctrl+A sélectionne instantanément toutes les conversations visibles.',
+    feat4_title:'Double confirmation', feat4_desc:'Une seconde touche requise avant la suppression — suppressions accidentelles impossibles.',
+    feat5_title:'Barre de progression', feat5_desc:'Retour en temps réel pendant le traitement des suppressions.',
+    feat6_title:'20 langues', feat6_desc:"L'interface s'adapte automatiquement à la langue de votre navigateur.",
+    feat7_title:'Zéro tracking', feat7_desc:"Pas d'analyse, pas de télémétrie. Toute la logique s'exécute localement.",
+    feat8_title:'Thème automatique', feat8_desc:"S'adapte automatiquement au thème sombre ou clair de ChatGPT.",
+    how_label:'Comment ça marche', how_title:'Cinq étapes pour une ardoise vierge',
+    step1:'Ouvrez chatgpt.com dans Chrome',
+    step2:'Cliquez sur « Sélectionner des chats » ou appuyez sur Ctrl+Maj+K',
+    step3:'Cliquez sur les conversations pour les sélectionner, ou Ctrl+A pour tout',
+    step4:'Appuyez sur Suppr — puis à nouveau pour confirmer',
+    step5:'Terminé — les chats sélectionnés sont supprimés instantanément',
+    shortcuts_label:'Raccourcis', shortcuts_title:'Raccourcis clavier',
+    key_toggle_mode:'Activer/désactiver le mode sélection', key_toggle_chat:'Basculer la sélection du chat',
+    key_select_all:'Sélectionner tous les chats', key_clear:'Effacer la sélection',
+    key_delete:'Confirmer et supprimer', key_exit:'Quitter le mode sélection',
+    privacy_title:'Votre vie privée est protégée',
+    privacy_desc:"L'extension s'exécute entièrement dans votre onglet. Elle utilise l'API de ChatGPT avec votre session existante — aucune donnée ne quitte votre navigateur.",
+    privacy_perm:'Une seule permission requise : accès à chatgpt.com',
+    cta_label:'Commencer', cta_title:'Prêt à faire le ménage ?',
+    cta_sub:'Gratuit, open source, installation en 10 secondes.',
+    cta_btn:'Ajouter à Chrome — Gratuit',
+    footer_tagline:'Rapide, privé, gratuit.',
+    footer_install:'Installer', footer_github:'Code source',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chats sélectionnés', demo_del:'Supprimer'
+  }},
+  es: { dir:'ltr', name:'Español', strings:{
+    nav_install:'Añadir a Chrome', nav_github:'GitHub',
+    hero_badge:'Extensión de Chrome · Gratis',
+    hero_title:'Limpia tu historial de ChatGPT en segundos',
+    hero_sub:'Selecciona y elimina decenas de conversaciones de una vez. Orientado al teclado, sin popups, velocidad máxima.',
+    hero_cta:'Añadir a Chrome — Gratis', hero_github:'Ver en GitHub',
+    hero_trust:'Sin rastreo · Se ejecuta localmente · Gratis para siempre',
+    video_label:'Demo', video_title:'Véalo en acción',
+    video_sub:'Mira lo rápido que puedes limpiar cientos de chats',
+    features_label:'Características', features_title:'Todo lo que necesitas',
+    feat1_title:'Eliminación masiva', feat1_desc:'Elimina decenas o cientos de conversaciones en una sola acción.',
+    feat2_title:'Teclado primero', feat2_desc:'Flujo de trabajo completo sin usar el ratón: seleccionar, confirmar, eliminar.',
+    feat3_title:'Seleccionar todo', feat3_desc:'Ctrl+A selecciona instantáneamente todas las conversaciones visibles.',
+    feat4_title:'Doble confirmación', feat4_desc:'Se requiere una segunda pulsación antes de eliminar — borrados accidentales imposibles.',
+    feat5_title:'Barra de progreso', feat5_desc:'Retroalimentación en tiempo real mientras se procesan las eliminaciones.',
+    feat6_title:'20 idiomas', feat6_desc:'La interfaz se adapta automáticamente al idioma de tu navegador.',
+    feat7_title:'Sin rastreo', feat7_desc:'Sin análisis, sin telemetría. Toda la lógica se ejecuta localmente.',
+    feat8_title:'Tema automático', feat8_desc:'Se adapta automáticamente al tema oscuro o claro de ChatGPT.',
+    how_label:'Cómo funciona', how_title:'Cinco pasos para un historial limpio',
+    step1:'Abre chatgpt.com en Chrome',
+    step2:'Haz clic en «Seleccionar chats» o pulsa Ctrl+Shift+K',
+    step3:'Haz clic en conversaciones para seleccionarlas, o Ctrl+A para todas',
+    step4:'Pulsa Supr — luego de nuevo para confirmar',
+    step5:'Listo — los chats seleccionados se eliminan al instante',
+    shortcuts_label:'Atajos', shortcuts_title:'Atajos de teclado',
+    key_toggle_mode:'Activar/desactivar modo selección', key_toggle_chat:'Alternar selección del chat',
+    key_select_all:'Seleccionar todos los chats', key_clear:'Limpiar selección',
+    key_delete:'Confirmar y eliminar', key_exit:'Salir del modo selección',
+    privacy_title:'Tu privacidad está protegida',
+    privacy_desc:"La extensión se ejecuta completamente en tu pestaña. Utiliza la propia API de ChatGPT con tu sesión existente — ningún dato abandona tu navegador.",
+    privacy_perm:'Solo se requiere un permiso: acceso a chatgpt.com',
+    cta_label:'Empezar', cta_title:'¿Listo para limpiar?',
+    cta_sub:'Gratis, código abierto, instalación en 10 segundos.',
+    cta_btn:'Añadir a Chrome — Gratis',
+    footer_tagline:'Rápido, privado, gratis.',
+    footer_install:'Instalar', footer_github:'Código fuente',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chats seleccionados', demo_del:'Eliminar'
+  }},
+  pt: { dir:'ltr', name:'Português', strings:{
+    nav_install:'Adicionar ao Chrome', nav_github:'GitHub',
+    hero_badge:'Extensão do Chrome · Gratuito',
+    hero_title:'Limpe seu histórico do ChatGPT em segundos',
+    hero_sub:'Selecione e exclua dezenas de conversas de uma vez. Orientado ao teclado, sem popups, velocidade máxima.',
+    hero_cta:'Adicionar ao Chrome — Gratuito', hero_github:'Ver no GitHub',
+    hero_trust:'Sem rastreamento · Funciona localmente · Gratuito para sempre',
+    video_label:'Demo', video_title:'Veja em ação',
+    video_sub:'Veja como é rápido limpar centenas de chats',
+    features_label:'Recursos', features_title:'Tudo que você precisa',
+    feat1_title:'Exclusão em massa', feat1_desc:'Remova dezenas ou centenas de conversas em uma ação.',
+    feat2_title:'Teclado em primeiro lugar', feat2_desc:'Fluxo completo sem tocar no mouse: selecionar, confirmar, excluir.',
+    feat3_title:'Selecionar tudo', feat3_desc:'Ctrl+A seleciona instantaneamente todas as conversas visíveis.',
+    feat4_title:'Dupla confirmação', feat4_desc:'Uma segunda tecla necessária antes de excluir — exclusões acidentais impossíveis.',
+    feat5_title:'Barra de progresso', feat5_desc:'Feedback em tempo real durante o processamento das exclusões.',
+    feat6_title:'20 idiomas', feat6_desc:'Interface se adapta automaticamente ao idioma do navegador.',
+    feat7_title:'Sem rastreamento', feat7_desc:'Sem análises, sem telemetria. Toda a lógica roda localmente.',
+    feat8_title:'Tema automático', feat8_desc:'Corresponde automaticamente ao tema escuro ou claro do ChatGPT.',
+    how_label:'Como funciona', how_title:'Cinco passos para um histórico limpo',
+    step1:'Abra chatgpt.com no Chrome',
+    step2:'Clique em "Selecionar chats" ou pressione Ctrl+Shift+K',
+    step3:'Clique nas conversas para selecionar, ou Ctrl+A para todas',
+    step4:'Pressione Delete — depois novamente para confirmar',
+    step5:'Pronto — chats selecionados são excluídos instantaneamente',
+    shortcuts_label:'Atalhos', shortcuts_title:'Atalhos de teclado',
+    key_toggle_mode:'Ativar/desativar modo de seleção', key_toggle_chat:'Alternar seleção do chat',
+    key_select_all:'Selecionar todos os chats', key_clear:'Limpar seleção',
+    key_delete:'Confirmar e excluir', key_exit:'Sair do modo de seleção',
+    privacy_title:'Sua privacidade está protegida',
+    privacy_desc:'A extensão funciona inteiramente na sua aba do navegador. Usa a própria API do ChatGPT com sua sessão existente — nenhum dado sai do seu navegador.',
+    privacy_perm:'Apenas uma permissão necessária: acesso ao chatgpt.com',
+    cta_label:'Começar', cta_title:'Pronto para limpar?',
+    cta_sub:'Gratuito, código aberto, instalação em 10 segundos.',
+    cta_btn:'Adicionar ao Chrome — Gratuito',
+    footer_tagline:'Rápido, privado, gratuito.',
+    footer_install:'Instalar', footer_github:'Código fonte',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chats selecionados', demo_del:'Excluir'
+  }},
+  it: { dir:'ltr', name:'Italiano', strings:{
+    nav_install:'Aggiungi a Chrome', nav_github:'GitHub',
+    hero_badge:'Estensione Chrome · Gratuito',
+    hero_title:'Pulisci la cronologia ChatGPT in pochi secondi',
+    hero_sub:'Seleziona ed elimina decine di conversazioni in una volta. Tastiera al primo posto, senza popup, velocità massima.',
+    hero_cta:'Aggiungi a Chrome — Gratuito', hero_github:'Vedi su GitHub',
+    hero_trust:'Zero tracciamento · Funziona localmente · Gratuito per sempre',
+    video_label:'Demo', video_title:'Vedi in azione',
+    video_sub:'Guarda quanto velocemente puoi pulire centinaia di chat',
+    features_label:'Funzionalità', features_title:'Tutto ciò di cui hai bisogno',
+    feat1_title:'Eliminazione massiva', feat1_desc:"Rimuovi decine o centinaia di conversazioni in un'azione.",
+    feat2_title:'Tastiera al primo posto', feat2_desc:'Flusso di lavoro completo senza toccare il mouse: seleziona, conferma, elimina.',
+    feat3_title:'Seleziona tutto', feat3_desc:'Ctrl+A seleziona istantaneamente tutte le conversazioni visibili.',
+    feat4_title:'Doppia conferma', feat4_desc:"È necessaria una seconda pressione prima dell'eliminazione — cancellazioni accidentali impossibili.",
+    feat5_title:'Barra di avanzamento', feat5_desc:"Feedback in tempo reale durante l'elaborazione delle eliminazioni.",
+    feat6_title:'20 lingue', feat6_desc:"L'interfaccia si adatta automaticamente alla lingua del browser.",
+    feat7_title:'Zero tracciamento', feat7_desc:'Nessuna analisi, nessuna telemetria. Tutta la logica gira localmente.',
+    feat8_title:'Tema automatico', feat8_desc:'Si adatta automaticamente al tema scuro o chiaro di ChatGPT.',
+    how_label:'Come funziona', how_title:'Cinque passaggi per una cronologia pulita',
+    step1:'Apri chatgpt.com in Chrome',
+    step2:'Clicca su "Seleziona chat" o premi Ctrl+Shift+K',
+    step3:'Clicca sulle conversazioni per selezionarle, o Ctrl+A per tutte',
+    step4:'Premi Canc — poi di nuovo per confermare',
+    step5:'Fatto — le chat selezionate vengono eliminate istantaneamente',
+    shortcuts_label:'Scorciatoie', shortcuts_title:'Scorciatoie da tastiera',
+    key_toggle_mode:'Attiva/disattiva modalità selezione', key_toggle_chat:'Attiva/disattiva selezione chat',
+    key_select_all:'Seleziona tutti i chat', key_clear:'Cancella selezione',
+    key_delete:'Conferma ed elimina', key_exit:'Esci dalla modalità selezione',
+    privacy_title:'La tua privacy è protetta',
+    privacy_desc:"L'estensione funziona interamente nella tua scheda del browser. Utilizza l'API di ChatGPT con la tua sessione esistente — nessun dato lascia il tuo browser.",
+    privacy_perm:"È richiesta solo un'autorizzazione: accesso a chatgpt.com",
+    cta_label:'Inizia', cta_title:'Pronto a fare pulizia?',
+    cta_sub:'Gratuito, open source, installazione in 10 secondi.',
+    cta_btn:'Aggiungi a Chrome — Gratuito',
+    footer_tagline:'Veloce, privato, gratuito.',
+    footer_install:'Installa', footer_github:'Codice sorgente',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chat selezionate', demo_del:'Elimina'
+  }},
+  pl: { dir:'ltr', name:'Polski', strings:{
+    nav_install:'Dodaj do Chrome', nav_github:'GitHub',
+    hero_badge:'Rozszerzenie Chrome · Bezpłatne',
+    hero_title:'Wyczyść historię ChatGPT w kilka sekund',
+    hero_sub:'Wybierz i usuń dziesiątki rozmów naraz. Sterowanie klawiaturą, bez wyskakujących okienek, maksymalna szybkość.',
+    hero_cta:'Dodaj do Chrome — Bezpłatnie', hero_github:'Zobacz na GitHub',
+    hero_trust:'Zero śledzenia · Działa lokalnie · Bezpłatne na zawsze',
+    video_label:'Demo', video_title:'Zobacz w akcji',
+    video_sub:'Jak szybko można wyczyścić setki czatów',
+    features_label:'Funkcje', features_title:'Wszystko czego potrzebujesz',
+    feat1_title:'Usuwanie zbiorcze', feat1_desc:'Usuń dziesiątki lub setki rozmów w jednej akcji.',
+    feat2_title:'Klawiatura na pierwszym miejscu', feat2_desc:'Pełny przepływ pracy bez dotykania myszy: wybierz, potwierdź, usuń.',
+    feat3_title:'Zaznacz wszystko', feat3_desc:'Ctrl+A natychmiast zaznacza wszystkie widoczne rozmowy.',
+    feat4_title:'Podwójne potwierdzenie', feat4_desc:'Wymagane drugie naciśnięcie klawisza przed usunięciem — przypadkowe usunięcia niemożliwe.',
+    feat5_title:'Pasek postępu', feat5_desc:'Informacje zwrotne w czasie rzeczywistym podczas przetwarzania usunięć.',
+    feat6_title:'20 języków', feat6_desc:'Interfejs automatycznie dostosowuje się do języka przeglądarki.',
+    feat7_title:'Zero śledzenia', feat7_desc:'Żadnych analiz, żadnej telemetrii. Cała logika działa lokalnie.',
+    feat8_title:'Automatyczny motyw', feat8_desc:'Automatycznie dopasowuje się do ciemnego lub jasnego motywu ChatGPT.',
+    how_label:'Jak to działa', how_title:'Pięć kroków do czystej historii',
+    step1:'Otwórz chatgpt.com w Chrome',
+    step2:'Kliknij "Wybierz czaty" lub naciśnij Ctrl+Shift+K',
+    step3:'Kliknij rozmowy, aby je zaznaczyć, lub Ctrl+A dla wszystkich',
+    step4:'Naciśnij Delete — a następnie ponownie, aby potwierdzić',
+    step5:'Gotowe — wybrane czaty zostaną natychmiast usunięte',
+    shortcuts_label:'Skróty', shortcuts_title:'Skróty klawiszowe',
+    key_toggle_mode:'Włącz/wyłącz tryb wyboru', key_toggle_chat:'Przełącz wybór czatu',
+    key_select_all:'Zaznacz wszystkie czaty', key_clear:'Wyczyść wybór',
+    key_delete:'Potwierdź i usuń', key_exit:'Wyjdź z trybu wyboru',
+    privacy_title:'Twoja prywatność jest chroniona',
+    privacy_desc:'Rozszerzenie działa całkowicie w karcie przeglądarki. Używa własnego API ChatGPT z istniejącą sesją — żadne dane nie opuszczają przeglądarki.',
+    privacy_perm:'Wymagane tylko jedno uprawnienie: dostęp do chatgpt.com',
+    cta_label:'Zacznij', cta_title:'Gotowy do sprzątania?',
+    cta_sub:'Bezpłatne, open source, instalacja w 10 sekund.',
+    cta_btn:'Dodaj do Chrome — Bezpłatnie',
+    footer_tagline:'Szybko, bezpiecznie, bezpłatnie.',
+    footer_install:'Zainstaluj', footer_github:'Kod źródłowy',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'czatów zaznaczono', demo_del:'Usuń'
+  }},
+  nl: { dir:'ltr', name:'Nederlands', strings:{
+    nav_install:'Toevoegen aan Chrome', nav_github:'GitHub',
+    hero_badge:'Chrome-extensie · Gratis',
+    hero_title:'Ruim je ChatGPT-geschiedenis op in seconden',
+    hero_sub:'Selecteer en verwijder tientallen gesprekken tegelijk. Toetsenbord-eerst, geen pop-ups, maximale snelheid.',
+    hero_cta:'Toevoegen aan Chrome — Gratis', hero_github:'Bekijk op GitHub',
+    hero_trust:'Geen tracking · Werkt lokaal · Gratis voor altijd',
+    video_label:'Demo', video_title:'Zie het in actie',
+    video_sub:'Bekijk hoe snel je honderden chats kunt opruimen',
+    features_label:'Functies', features_title:'Alles wat je nodig hebt',
+    feat1_title:'Bulkverwijdering', feat1_desc:'Verwijder tientallen of honderden gesprekken in één actie.',
+    feat2_title:'Toetsenbord-eerst', feat2_desc:'Volledige workflow zonder de muis aan te raken: selecteren, bevestigen, verwijderen.',
+    feat3_title:'Alles selecteren', feat3_desc:'Ctrl+A selecteert onmiddellijk alle zichtbare gesprekken.',
+    feat4_title:'Dubbele bevestiging', feat4_desc:'Een tweede toetsaanslag vereist voor verwijdering — onbedoeld wissen onmogelijk.',
+    feat5_title:'Voortgangsbalk', feat5_desc:'Realtime feedback terwijl verwijderingen worden verwerkt.',
+    feat6_title:'20 talen', feat6_desc:'Interface past zich automatisch aan de browsertaal aan.',
+    feat7_title:'Geen tracking', feat7_desc:'Geen analyses, geen telemetrie. Alle logica draait lokaal.',
+    feat8_title:'Automatisch thema', feat8_desc:'Past zich automatisch aan het donkere of lichte thema van ChatGPT aan.',
+    how_label:'Hoe het werkt', how_title:'Vijf stappen naar een schone lei',
+    step1:'Open chatgpt.com in Chrome',
+    step2:'Klik op "Chats selecteren" of druk op Ctrl+Shift+K',
+    step3:'Klik op gesprekken om ze te selecteren, of Ctrl+A voor alle',
+    step4:'Druk op Delete — druk dan opnieuw om te bevestigen',
+    step5:'Klaar — geselecteerde chats worden onmiddellijk verwijderd',
+    shortcuts_label:'Sneltoetsen', shortcuts_title:'Sneltoetsen',
+    key_toggle_mode:'Selectiemodus in-/uitschakelen', key_toggle_chat:'Chatselectie omschakelen',
+    key_select_all:'Alle chats selecteren', key_clear:'Selectie wissen',
+    key_delete:'Bevestigen en verwijderen', key_exit:'Selectiemodus verlaten',
+    privacy_title:'Je privacy is beschermd',
+    privacy_desc:"De extensie draait volledig in je browsertabblad. Het gebruikt ChatGPT's eigen API met je bestaande sessie — geen gegevens verlaten je browser.",
+    privacy_perm:'Slechts één machtiging vereist: toegang tot chatgpt.com',
+    cta_label:'Aan de slag', cta_title:'Klaar om op te ruimen?',
+    cta_sub:'Gratis, open source, installatie in 10 seconden.',
+    cta_btn:'Toevoegen aan Chrome — Gratis',
+    footer_tagline:'Snel, privé, gratis.',
+    footer_install:'Installeren', footer_github:'Broncode',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'chats geselecteerd', demo_del:'Verwijderen'
+  }},
+  tr: { dir:'ltr', name:'Türkçe', strings:{
+    nav_install:"Chrome'a Ekle", nav_github:'GitHub',
+    hero_badge:'Chrome Uzantısı · Ücretsiz',
+    hero_title:'ChatGPT Geçmişinizi Saniyeler İçinde Temizleyin',
+    hero_sub:'Bir seferde onlarca konuşmayı seçin ve toplu olarak silin. Klavye öncelikli, açılır pencere yok, maksimum hız.',
+    hero_cta:"Chrome'a Ekle — Ücretsiz", hero_github:"GitHub'da Görüntüle",
+    hero_trust:'Sıfır takip · Yerel çalışır · Sonsuza kadar ücretsiz',
+    video_label:'Demo', video_title:'Çalışırken görün',
+    video_sub:'Yüzlerce sohbeti ne kadar hızlı temizleyebileceğinizi izleyin',
+    features_label:'Özellikler', features_title:'İhtiyacınız olan her şey',
+    feat1_title:'Toplu Silme', feat1_desc:'Tek bir işlemde onlarca veya yüzlerce konuşmayı kaldırın.',
+    feat2_title:'Klavye Öncelikli', feat2_desc:'Fareye dokunmadan tam iş akışı: seçme, onaylama, silme.',
+    feat3_title:'Tümünü Seç', feat3_desc:'Ctrl+A görünen tüm konuşmaları anında seçer.',
+    feat4_title:'Çift Onay', feat4_desc:'Silmeden önce ikinci bir tuş basışı gereklidir — kazara silme imkansız.',
+    feat5_title:'İlerleme Çubuğu', feat5_desc:'Silme işlemleri sırasında gerçek zamanlı geri bildirim.',
+    feat6_title:'20 Dil', feat6_desc:'Arayüz, tarayıcı dilinize otomatik olarak uyum sağlar.',
+    feat7_title:'Sıfır Takip', feat7_desc:'Analitik yok, telemetri yok. Tüm mantık yerel olarak çalışır.',
+    feat8_title:'Otomatik Tema', feat8_desc:"ChatGPT'nin koyu veya açık temasına otomatik olarak uyar.",
+    how_label:'Nasıl çalışır', how_title:'Temiz bir geçmiş için beş adım',
+    step1:"Chrome'da chatgpt.com'u açın",
+    step2:'"Sohbetleri seç" düğmesine tıklayın veya Ctrl+Shift+K\'ya basın',
+    step3:'Seçmek için konuşmalara tıklayın veya tümü için Ctrl+A',
+    step4:"Delete'e basın — onaylamak için tekrar basın",
+    step5:'Tamam — seçili sohbetler anında silindi',
+    shortcuts_label:'Kısayollar', shortcuts_title:'Klavye Kısayolları',
+    key_toggle_mode:'Seçim modunu aç/kapat', key_toggle_chat:'Sohbet seçimini değiştir',
+    key_select_all:'Tüm sohbetleri seç', key_clear:'Seçimi temizle',
+    key_delete:'Onayla ve sil', key_exit:'Seçim modundan çık',
+    privacy_title:'Gizliliğiniz korunuyor',
+    privacy_desc:'Uzantı tamamen tarayıcı sekmenizde çalışır. Mevcut oturumunuzla ChatGPT\'nin kendi API\'sini kullanır — hiçbir veri tarayıcınızı terk etmez.',
+    privacy_perm:"Yalnızca bir izin gereklidir: chatgpt.com'a erişim",
+    cta_label:'Başlayın', cta_title:'Temizlemeye hazır mısınız?',
+    cta_sub:'Ücretsiz, açık kaynak, kurulum 10 saniye sürer.',
+    cta_btn:"Chrome'a Ekle — Ücretsiz",
+    footer_tagline:'Hızlı, gizli, ücretsiz.',
+    footer_install:'Yükle', footer_github:'Kaynak Kodu',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'sohbet seçildi', demo_del:'Sil'
+  }},
+  ar: { dir:'rtl', name:'العربية', strings:{
+    nav_install:'أضف إلى Chrome', nav_github:'GitHub',
+    hero_badge:'إضافة Chrome · مجاني',
+    hero_title:'نظّف سجل ChatGPT في ثوانٍ',
+    hero_sub:'حدد واحذف عشرات المحادثات دفعة واحدة. لوحة مفاتيح أولاً، بدون نوافذ منبثقة، سرعة قصوى.',
+    hero_cta:'أضف إلى Chrome — مجاناً', hero_github:'عرض على GitHub',
+    hero_trust:'بدون تتبع · يعمل محلياً · مجاني للأبد',
+    video_label:'عرض توضيحي', video_title:'شاهده في العمل',
+    video_sub:'انظر كم يمكنك تنظيف مئات المحادثات بسرعة',
+    features_label:'الميزات', features_title:'كل ما تحتاجه',
+    feat1_title:'حذف جماعي', feat1_desc:'احذف عشرات أو مئات المحادثات في إجراء واحد.',
+    feat2_title:'لوحة المفاتيح أولاً', feat2_desc:'سير عمل كامل بدون لمس الماوس: تحديد، تأكيد، حذف.',
+    feat3_title:'تحديد الكل', feat3_desc:'Ctrl+A تحدد جميع المحادثات المرئية فورياً.',
+    feat4_title:'تأكيد مزدوج', feat4_desc:'مطلوب ضغطة مفتاح ثانية قبل الحذف — الحذف العرضي مستحيل.',
+    feat5_title:'شريط التقدم', feat5_desc:'ملاحظات فورية أثناء معالجة عمليات الحذف.',
+    feat6_title:'20 لغة', feat6_desc:'تتكيف الواجهة تلقائياً مع لغة متصفحك.',
+    feat7_title:'بدون تتبع', feat7_desc:'لا تحليلات، لا قياسات عن بُعد. كل المنطق يعمل محلياً.',
+    feat8_title:'سمة تلقائية', feat8_desc:'تتطابق تلقائياً مع السمة الداكنة أو الفاتحة لـ ChatGPT.',
+    how_label:'كيف يعمل', how_title:'خمس خطوات لسجل نظيف',
+    step1:'افتح chatgpt.com في Chrome',
+    step2:'انقر على "تحديد المحادثات" أو اضغط Ctrl+Shift+K',
+    step3:'انقر على المحادثات للتحديد، أو Ctrl+A لتحديد الكل',
+    step4:'اضغط Delete — ثم اضغط مرة أخرى للتأكيد',
+    step5:'تم — المحادثات المحددة محذوفة فوراً',
+    shortcuts_label:'الاختصارات', shortcuts_title:'اختصارات لوحة المفاتيح',
+    key_toggle_mode:'تبديل وضع التحديد', key_toggle_chat:'تبديل تحديد المحادثة',
+    key_select_all:'تحديد كل المحادثات', key_clear:'مسح التحديد',
+    key_delete:'تأكيد والحذف', key_exit:'الخروج من وضع التحديد',
+    privacy_title:'خصوصيتك محمية',
+    privacy_desc:'تعمل الإضافة بالكامل داخل علامة تبويب المتصفح. تستخدم واجهة برمجة ChatGPT الخاصة مع جلستك الحالية — لا تغادر أي بيانات متصفحك.',
+    privacy_perm:'مطلوب إذن واحد فقط: الوصول إلى chatgpt.com',
+    cta_label:'ابدأ الآن', cta_title:'مستعد للتنظيف؟',
+    cta_sub:'مجاني، مفتوح المصدر، التثبيت في 10 ثوانٍ.',
+    cta_btn:'أضف إلى Chrome — مجاناً',
+    footer_tagline:'سريع، خاص، مجاني.',
+    footer_install:'تثبيت', footer_github:'الكود المصدري',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'محادثات محددة', demo_del:'حذف'
+  }},
+  zh: { dir:'ltr', name:'中文（简体）', strings:{
+    nav_install:'添加到 Chrome', nav_github:'GitHub',
+    hero_badge:'Chrome 扩展 · 免费',
+    hero_title:'几秒钟内清理您的 ChatGPT 历史记录',
+    hero_sub:'一次性选择并批量删除数十个对话。键盘优先，无弹窗，极速。',
+    hero_cta:'添加到 Chrome — 免费', hero_github:'在 GitHub 上查看',
+    hero_trust:'零追踪 · 本地运行 · 永久免费',
+    video_label:'演示', video_title:'观看实际效果',
+    video_sub:'看看删除数百个聊天有多快',
+    features_label:'功能', features_title:'您所需要的一切',
+    feat1_title:'批量删除', feat1_desc:'一次操作删除数十或数百个对话。',
+    feat2_title:'键盘优先', feat2_desc:'无需触碰鼠标即可完成完整工作流：选择、确认、删除。',
+    feat3_title:'全部选择', feat3_desc:'Ctrl+A 瞬间选中所有可见对话。',
+    feat4_title:'双重确认', feat4_desc:'删除前需要第二次按键确认——意外删除不可能发生。',
+    feat5_title:'进度条', feat5_desc:'删除处理期间提供实时反馈。',
+    feat6_title:'20 种语言', feat6_desc:'界面自动适应浏览器语言设置。',
+    feat7_title:'零追踪', feat7_desc:'无分析，无遥测。所有逻辑在本地运行。',
+    feat8_title:'自动主题', feat8_desc:'自动匹配 ChatGPT 的深色或浅色主题。',
+    how_label:'使用方法', how_title:'五步完成清理',
+    step1:'在 Chrome 中打开 chatgpt.com',
+    step2:'点击「选择聊天」或按 Ctrl+Shift+K',
+    step3:'点击对话进行切换选择，或按 Ctrl+A 全选',
+    step4:'按 Delete — 再按一次确认',
+    step5:'完成——所选聊天立即删除',
+    shortcuts_label:'快捷键', shortcuts_title:'键盘快捷键',
+    key_toggle_mode:'切换选择模式', key_toggle_chat:'切换聊天选择',
+    key_select_all:'选择所有聊天', key_clear:'清除选择',
+    key_delete:'确认并删除', key_exit:'退出选择模式',
+    privacy_title:'您的隐私受到保护',
+    privacy_desc:'扩展程序完全在您的浏览器标签页内运行。它使用 ChatGPT 自己的 API 和您现有的登录会话——任何数据都不会离开您的浏览器。',
+    privacy_perm:'仅需一项权限：访问 chatgpt.com',
+    cta_label:'开始使用', cta_title:'准备好清理了吗？',
+    cta_sub:'免费、开源，10 秒即可完成安装。',
+    cta_btn:'添加到 Chrome — 免费',
+    footer_tagline:'快速、私密、免费。',
+    footer_install:'安装', footer_github:'源代码',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'个对话已选', demo_del:'删除'
+  }},
+  zh_TW: { dir:'ltr', name:'中文（繁體）', strings:{
+    nav_install:'新增到 Chrome', nav_github:'GitHub',
+    hero_badge:'Chrome 擴充功能 · 免費',
+    hero_title:'幾秒鐘內清理您的 ChatGPT 歷史記錄',
+    hero_sub:'一次性選擇並批量刪除數十個對話。鍵盤優先，無彈窗，極速。',
+    hero_cta:'新增到 Chrome — 免費', hero_github:'在 GitHub 上查看',
+    hero_trust:'零追蹤 · 本地運行 · 永久免費',
+    video_label:'示範', video_title:'觀看實際效果',
+    video_sub:'看看刪除數百個對話有多快',
+    features_label:'功能', features_title:'您所需的一切',
+    feat1_title:'批量刪除', feat1_desc:'一次操作刪除數十或數百個對話。',
+    feat2_title:'鍵盤優先', feat2_desc:'無需觸碰滑鼠即可完成完整工作流程：選擇、確認、刪除。',
+    feat3_title:'全部選擇', feat3_desc:'Ctrl+A 瞬間選中所有可見對話。',
+    feat4_title:'雙重確認', feat4_desc:'刪除前需要第二次按鍵確認——意外刪除不可能發生。',
+    feat5_title:'進度列', feat5_desc:'刪除處理期間提供即時回饋。',
+    feat6_title:'20 種語言', feat6_desc:'介面自動適應瀏覽器語言設定。',
+    feat7_title:'零追蹤', feat7_desc:'無分析，無遙測。所有邏輯在本地運行。',
+    feat8_title:'自動主題', feat8_desc:'自動配合 ChatGPT 的深色或淺色主題。',
+    how_label:'使用方法', how_title:'五步完成清理',
+    step1:'在 Chrome 中開啟 chatgpt.com',
+    step2:'點擊「選擇聊天」或按 Ctrl+Shift+K',
+    step3:'點擊對話進行切換選擇，或按 Ctrl+A 全選',
+    step4:'按 Delete — 再按一次確認',
+    step5:'完成——所選聊天立即刪除',
+    shortcuts_label:'快捷鍵', shortcuts_title:'鍵盤快捷鍵',
+    key_toggle_mode:'切換選擇模式', key_toggle_chat:'切換對話選擇',
+    key_select_all:'選擇所有對話', key_clear:'清除選擇',
+    key_delete:'確認並刪除', key_exit:'退出選擇模式',
+    privacy_title:'您的隱私受到保護',
+    privacy_desc:'擴充功能完全在您的瀏覽器標籤頁內運行。它使用 ChatGPT 自己的 API 和您現有的登入工作階段——任何資料都不會離開您的瀏覽器。',
+    privacy_perm:'僅需一項權限：存取 chatgpt.com',
+    cta_label:'開始使用', cta_title:'準備好清理了嗎？',
+    cta_sub:'免費、開源，10 秒即可完成安裝。',
+    cta_btn:'新增到 Chrome — 免費',
+    footer_tagline:'快速、私密、免費。',
+    footer_install:'安裝', footer_github:'原始碼',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'個對話已選', demo_del:'刪除'
+  }},
+  ja: { dir:'ltr', name:'日本語', strings:{
+    nav_install:'Chromeに追加', nav_github:'GitHub',
+    hero_badge:'Chrome拡張機能 · 無料',
+    hero_title:'ChatGPT履歴を数秒でクリーンアップ',
+    hero_sub:'一度に数十の会話を選択して一括削除。キーボード操作、ポップアップなし、最高速度。',
+    hero_cta:'Chromeに追加 — 無料', hero_github:'GitHubで見る',
+    hero_trust:'追跡なし · ローカル実行 · 永久無料',
+    video_label:'デモ', video_title:'動作を見る',
+    video_sub:'何百ものチャットをいかに素早く整理できるかご覧ください',
+    features_label:'機能', features_title:'必要なすべての機能',
+    feat1_title:'一括削除', feat1_desc:'1回の操作で数十〜数百の会話を削除。',
+    feat2_title:'キーボード優先', feat2_desc:'マウスを使わずに完全なワークフロー：選択、確認、削除。',
+    feat3_title:'すべて選択', feat3_desc:'Ctrl+Aで表示されているすべての会話を瞬時に選択。',
+    feat4_title:'二重確認', feat4_desc:'削除前に2回目のキー押下が必要 — 誤削除を防止。',
+    feat5_title:'プログレスバー', feat5_desc:'削除処理中のリアルタイムフィードバック。',
+    feat6_title:'20言語対応', feat6_desc:'ブラウザのロケールに自動適応するUI。',
+    feat7_title:'追跡なし', feat7_desc:'分析なし、テレメトリなし。すべてのロジックがローカルで実行。',
+    feat8_title:'自動テーマ', feat8_desc:'ChatGPTのダーク・ライトテーマに自動対応。',
+    how_label:'使い方', how_title:'5ステップでクリーンな履歴に',
+    step1:'ChromeでChatGPT.comを開く',
+    step2:'「チャットを選択」ボタンをクリック、またはCtrl+Shift+Kを押す',
+    step3:'会話をクリックして選択、またはCtrl+Aで全選択',
+    step4:'Deleteキーを押す — 確認のためもう一度押す',
+    step5:'完了 — 選択したチャットが即座に削除される',
+    shortcuts_label:'ショートカット', shortcuts_title:'キーボードショートカット',
+    key_toggle_mode:'選択モードの切り替え', key_toggle_chat:'チャット選択を切り替え',
+    key_select_all:'すべてのチャットを選択', key_clear:'選択をクリア',
+    key_delete:'確認して削除', key_exit:'選択モードを終了',
+    privacy_title:'プライバシーは保護されています',
+    privacy_desc:'拡張機能はブラウザのタブ内で完全に動作します。既存のログインセッションでChatGPT自身のAPIを使用 — データはブラウザの外に出ません。',
+    privacy_perm:'必要な権限は1つだけ：chatgpt.comへのアクセス',
+    cta_label:'はじめる', cta_title:'整理する準備ができましたか？',
+    cta_sub:'無料、オープンソース、インストールは10秒で完了。',
+    cta_btn:'Chromeに追加 — 無料',
+    footer_tagline:'速い、プライベート、無料。',
+    footer_install:'インストール', footer_github:'ソースコード',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'チャット選択済', demo_del:'削除'
+  }},
+  ko: { dir:'ltr', name:'한국어', strings:{
+    nav_install:'Chrome에 추가', nav_github:'GitHub',
+    hero_badge:'Chrome 확장 · 무료',
+    hero_title:'몇 초 만에 ChatGPT 기록 정리하기',
+    hero_sub:'한 번에 수십 개의 대화를 선택하고 일괄 삭제하세요. 키보드 우선, 팝업 없음, 최고 속도.',
+    hero_cta:'Chrome에 추가 — 무료', hero_github:'GitHub에서 보기',
+    hero_trust:'추적 없음 · 로컬 실행 · 영원히 무료',
+    video_label:'데모', video_title:'실제로 보기',
+    video_sub:'수백 개의 채팅을 얼마나 빠르게 정리할 수 있는지 보세요',
+    features_label:'기능', features_title:'필요한 모든 것',
+    feat1_title:'일괄 삭제', feat1_desc:'한 번의 동작으로 수십 또는 수백 개의 대화를 삭제하세요.',
+    feat2_title:'키보드 우선', feat2_desc:'마우스 없이 완전한 워크플로우: 선택, 확인, 삭제.',
+    feat3_title:'전체 선택', feat3_desc:'Ctrl+A로 보이는 모든 대화를 즉시 선택합니다.',
+    feat4_title:'이중 확인', feat4_desc:'삭제 전 두 번째 키 누름 필요 — 실수로 삭제 불가능.',
+    feat5_title:'진행률 표시줄', feat5_desc:'삭제 처리 중 실시간 피드백.',
+    feat6_title:'20개 언어', feat6_desc:'UI가 브라우저 언어에 자동으로 적응합니다.',
+    feat7_title:'추적 없음', feat7_desc:'분석 없음, 텔레메트리 없음. 모든 로직이 로컬에서 실행됩니다.',
+    feat8_title:'자동 테마', feat8_desc:'ChatGPT의 다크 또는 라이트 테마에 자동으로 맞춥니다.',
+    how_label:'사용 방법', how_title:'깨끗한 기록을 위한 5단계',
+    step1:'Chrome에서 chatgpt.com 열기',
+    step2:'"채팅 선택" 클릭 또는 Ctrl+Shift+K 누르기',
+    step3:'대화를 클릭하여 선택하거나 Ctrl+A로 전체 선택',
+    step4:'Delete 누르기 — 확인하려면 다시 누르기',
+    step5:'완료 — 선택한 채팅이 즉시 삭제됨',
+    shortcuts_label:'단축키', shortcuts_title:'키보드 단축키',
+    key_toggle_mode:'선택 모드 전환', key_toggle_chat:'채팅 선택 전환',
+    key_select_all:'모든 채팅 선택', key_clear:'선택 지우기',
+    key_delete:'확인 및 삭제', key_exit:'선택 모드 종료',
+    privacy_title:'개인 정보 보호',
+    privacy_desc:'확장 프로그램은 브라우저 탭 내에서 완전히 실행됩니다. 기존 로그인 세션으로 ChatGPT 자체 API를 사용 — 어떤 데이터도 브라우저를 떠나지 않습니다.',
+    privacy_perm:'필요한 권한 하나뿐: chatgpt.com 접근',
+    cta_label:'시작하기', cta_title:'정리할 준비가 되셨나요?',
+    cta_sub:'무료, 오픈 소스, 설치는 10초면 됩니다.',
+    cta_btn:'Chrome에 추가 — 무료',
+    footer_tagline:'빠르고, 비공개이며, 무료입니다.',
+    footer_install:'설치', footer_github:'소스 코드',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'개 채팅 선택됨', demo_del:'삭제'
+  }},
+  id: { dir:'ltr', name:'Bahasa Indonesia', strings:{
+    nav_install:'Tambahkan ke Chrome', nav_github:'GitHub',
+    hero_badge:'Ekstensi Chrome · Gratis',
+    hero_title:'Bersihkan Riwayat ChatGPT dalam Hitungan Detik',
+    hero_sub:'Pilih dan hapus puluhan percakapan sekaligus. Keyboard-first, tanpa pop-up, kecepatan maksimum.',
+    hero_cta:'Tambahkan ke Chrome — Gratis', hero_github:'Lihat di GitHub',
+    hero_trust:'Nol pelacakan · Berjalan lokal · Gratis selamanya',
+    video_label:'Demo', video_title:'Lihat cara kerjanya',
+    video_sub:'Saksikan betapa cepatnya membersihkan ratusan chat',
+    features_label:'Fitur', features_title:'Semua yang Anda butuhkan',
+    feat1_title:'Hapus Massal', feat1_desc:'Hapus puluhan atau ratusan percakapan dalam satu tindakan.',
+    feat2_title:'Keyboard-First', feat2_desc:'Alur kerja lengkap tanpa menyentuh mouse: pilih, konfirmasi, hapus.',
+    feat3_title:'Pilih Semua', feat3_desc:'Ctrl+A memilih semua percakapan yang terlihat secara instan.',
+    feat4_title:'Konfirmasi Ganda', feat4_desc:'Penekanan tombol kedua diperlukan sebelum penghapusan — penghapusan tidak sengaja mustahil.',
+    feat5_title:'Bilah Kemajuan', feat5_desc:'Umpan balik real-time saat penghapusan diproses.',
+    feat6_title:'20 Bahasa', feat6_desc:'UI menyesuaikan secara otomatis dengan bahasa browser Anda.',
+    feat7_title:'Nol Pelacakan', feat7_desc:'Tidak ada analitik, tidak ada telemetri. Semua logika berjalan secara lokal.',
+    feat8_title:'Tema Otomatis', feat8_desc:'Secara otomatis menyesuaikan tema gelap atau terang ChatGPT.',
+    how_label:'Cara kerjanya', how_title:'Lima langkah untuk riwayat yang bersih',
+    step1:'Buka chatgpt.com di Chrome',
+    step2:'Klik "Pilih obrolan" atau tekan Ctrl+Shift+K',
+    step3:'Klik percakapan untuk memilih, atau Ctrl+A untuk semua',
+    step4:'Tekan Delete — lalu tekan lagi untuk konfirmasi',
+    step5:'Selesai — obrolan yang dipilih dihapus seketika',
+    shortcuts_label:'Pintasan', shortcuts_title:'Pintasan Keyboard',
+    key_toggle_mode:'Aktifkan/nonaktifkan mode pilihan', key_toggle_chat:'Alihkan pilihan obrolan',
+    key_select_all:'Pilih semua obrolan', key_clear:'Hapus pilihan',
+    key_delete:'Konfirmasi dan hapus', key_exit:'Keluar dari mode pilihan',
+    privacy_title:'Privasi Anda terlindungi',
+    privacy_desc:'Ekstensi berjalan sepenuhnya di tab browser Anda. Menggunakan API ChatGPT sendiri dengan sesi login Anda yang ada — tidak ada data yang meninggalkan browser Anda.',
+    privacy_perm:'Hanya satu izin diperlukan: akses ke chatgpt.com',
+    cta_label:'Mulai', cta_title:'Siap untuk membersihkan?',
+    cta_sub:'Gratis, open source, instalasi 10 detik.',
+    cta_btn:'Tambahkan ke Chrome — Gratis',
+    footer_tagline:'Cepat, privat, gratis.',
+    footer_install:'Pasang', footer_github:'Kode Sumber',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'obrolan dipilih', demo_del:'Hapus'
+  }},
+  vi: { dir:'ltr', name:'Tiếng Việt', strings:{
+    nav_install:'Thêm vào Chrome', nav_github:'GitHub',
+    hero_badge:'Tiện ích Chrome · Miễn phí',
+    hero_title:'Dọn sạch lịch sử ChatGPT trong vài giây',
+    hero_sub:'Chọn và xóa hàng chục cuộc trò chuyện cùng một lúc. Ưu tiên bàn phím, không cửa sổ pop-up, tốc độ tối đa.',
+    hero_cta:'Thêm vào Chrome — Miễn phí', hero_github:'Xem trên GitHub',
+    hero_trust:'Không theo dõi · Chạy cục bộ · Miễn phí mãi mãi',
+    video_label:'Demo', video_title:'Xem hoạt động thực tế',
+    video_sub:'Xem bạn có thể dọn hàng trăm chat nhanh như thế nào',
+    features_label:'Tính năng', features_title:'Tất cả những gì bạn cần',
+    feat1_title:'Xóa hàng loạt', feat1_desc:'Xóa hàng chục hoặc hàng trăm cuộc trò chuyện trong một thao tác.',
+    feat2_title:'Ưu tiên bàn phím', feat2_desc:'Quy trình làm việc đầy đủ không cần chạm vào chuột: chọn, xác nhận, xóa.',
+    feat3_title:'Chọn tất cả', feat3_desc:'Ctrl+A chọn ngay lập tức tất cả các cuộc trò chuyện hiển thị.',
+    feat4_title:'Xác nhận kép', feat4_desc:'Cần nhấn phím lần thứ hai trước khi xóa — không thể xóa nhầm.',
+    feat5_title:'Thanh tiến trình', feat5_desc:'Phản hồi thời gian thực trong khi xử lý các lần xóa.',
+    feat6_title:'20 ngôn ngữ', feat6_desc:'Giao diện tự động thích nghi với ngôn ngữ trình duyệt của bạn.',
+    feat7_title:'Không theo dõi', feat7_desc:'Không phân tích, không đo từ xa. Tất cả logic chạy cục bộ.',
+    feat8_title:'Chủ đề tự động', feat8_desc:'Tự động phù hợp với chủ đề tối hoặc sáng của ChatGPT.',
+    how_label:'Cách hoạt động', how_title:'Năm bước để có lịch sử sạch',
+    step1:'Mở chatgpt.com trong Chrome',
+    step2:'Nhấp vào "Chọn đoạn chat" hoặc nhấn Ctrl+Shift+K',
+    step3:'Nhấp vào cuộc trò chuyện để chọn hoặc Ctrl+A để chọn tất cả',
+    step4:'Nhấn Delete — sau đó nhấn lại để xác nhận',
+    step5:'Xong — các cuộc trò chuyện đã chọn bị xóa ngay lập tức',
+    shortcuts_label:'Phím tắt', shortcuts_title:'Phím tắt bàn phím',
+    key_toggle_mode:'Bật/tắt chế độ chọn', key_toggle_chat:'Chuyển đổi lựa chọn chat',
+    key_select_all:'Chọn tất cả chat', key_clear:'Xóa lựa chọn',
+    key_delete:'Xác nhận và xóa', key_exit:'Thoát chế độ chọn',
+    privacy_title:'Quyền riêng tư của bạn được bảo vệ',
+    privacy_desc:'Tiện ích chạy hoàn toàn trong tab trình duyệt của bạn. Sử dụng API của chính ChatGPT với phiên đăng nhập hiện tại — không có dữ liệu nào rời khỏi trình duyệt của bạn.',
+    privacy_perm:'Chỉ cần một quyền: truy cập chatgpt.com',
+    cta_label:'Bắt đầu', cta_title:'Sẵn sàng dọn dẹp chưa?',
+    cta_sub:'Miễn phí, mã nguồn mở, cài đặt trong 10 giây.',
+    cta_btn:'Thêm vào Chrome — Miễn phí',
+    footer_tagline:'Nhanh, riêng tư, miễn phí.',
+    footer_install:'Cài đặt', footer_github:'Mã nguồn',
+    footer_rights:'© 2026 ChatGPT Chat Cleaner',
+    demo_selected:'cuộc trò chuyện được chọn', demo_del:'Xóa'
+  }}
+};
+
+// ── LANGUAGE DETECTION ──
+function detectLang() {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('lang') || params.get('l');
+  if (q && I18N[q]) return q;
+  const stored = localStorage.getItem('ccc_lang');
+  if (stored && I18N[stored]) return stored;
+  const nav = navigator.language || '';
+  if (/^zh-(TW|HK|MO)/i.test(nav)) return 'zh_TW';
+  const code = nav.split('-')[0].toLowerCase();
+  return I18N[code] ? code : 'en';
+}
+
+let currentLang = 'en';
+
+function applyLang(lang) {
+  const data = I18N[lang];
+  if (!data) return;
+  currentLang = lang;
+  document.documentElement.lang = lang.replace('_', '-');
+  document.documentElement.dir = data.dir;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = data.strings[key] || I18N.en.strings[key];
+    if (val) el.textContent = val;
+  });
+  const enStr = I18N.en.strings;
+  const s = data.strings;
+  document.title = s.page_title || enStr.page_title;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.content = s.meta_desc || enStr.meta_desc;
+  // Demo mockup
+  const demoLbl = document.getElementById('demoLabel');
+  const demoBtn = document.getElementById('demoDelBtn');
+  if (demoLbl) demoLbl.textContent = s.demo_selected || enStr.demo_selected;
+  if (demoBtn) demoBtn.textContent = s.demo_del || enStr.demo_del;
+  localStorage.setItem('ccc_lang', lang);
+}
+
+// ── BUILD LANG SELECTOR ──
+const sel = document.getElementById('langSelect');
+Object.entries(I18N).forEach(([code, data]) => {
+  const opt = document.createElement('option');
+  opt.value = code;
+  opt.textContent = data.name;
+  sel.appendChild(opt);
+});
+sel.addEventListener('change', e => {
+  applyLang(e.target.value);
+  // update URL without reload
+  const url = new URL(window.location);
+  url.searchParams.set('lang', e.target.value);
+  history.replaceState(null, '', url);
+});
+
+// ── INIT ──
+const initLang = detectLang();
+sel.value = initLang;
+applyLang(initLang);
+</script>
+</body>
+</html>

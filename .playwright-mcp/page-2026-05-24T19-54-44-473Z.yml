@@ -1,0 +1,214 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "ChatGPT Chat Cleaner ChatGPT Chat Cleaner" [ref=e4] [cursor=pointer]:
+        - /url: "#"
+        - img "ChatGPT Chat Cleaner" [ref=e5]
+        - generic [ref=e6]: ChatGPT Chat Cleaner
+      - generic [ref=e7]:
+        - combobox "Language" [ref=e8] [cursor=pointer]:
+          - option "English" [selected]
+          - option "Русский"
+          - option "Deutsch"
+          - option "Français"
+          - option "Español"
+          - option "Português"
+          - option "Italiano"
+          - option "Polski"
+          - option "Nederlands"
+          - option "Türkçe"
+          - option "العربية"
+          - option "中文（简体）"
+          - option "中文（繁體）"
+          - option "日本語"
+          - option "한국어"
+          - option "Bahasa Indonesia"
+          - option "Tiếng Việt"
+        - link "GitHub" [ref=e9] [cursor=pointer]:
+          - /url: https://github.com/your-username/chatgpt-bulk-delete
+        - link "Add to Chrome" [ref=e10] [cursor=pointer]:
+          - /url: "#"
+  - generic [ref=e11]:
+    - generic [ref=e12]: Chrome Extension · Free
+    - heading "Clean Your ChatGPT History in Seconds" [level=1] [ref=e13]
+    - paragraph [ref=e14]: Select and bulk-delete dozens of conversations at once. Keyboard-first, no popups, pure speed.
+    - generic [ref=e15]:
+      - link "Add to Chrome — Free" [ref=e16] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e17]
+        - generic [ref=e20]: Add to Chrome — Free
+      - link "View on GitHub" [ref=e21] [cursor=pointer]:
+        - /url: https://github.com/your-username/chatgpt-bulk-delete
+    - paragraph [ref=e22]: Zero tracking · Runs locally · Free forever
+  - generic [ref=e24]:
+    - generic [ref=e29]: chatgpt.com
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - generic [ref=e32]: Chats
+        - generic [ref=e33]:
+          - img [ref=e35]
+          - generic [ref=e37]: API research notes
+        - generic [ref=e38]:
+          - img [ref=e40]
+          - generic [ref=e42]: Today's project plan
+        - generic [ref=e43]:
+          - img [ref=e45]
+          - generic [ref=e47]: Code review session
+        - generic [ref=e50]: Old chat — Apr 2024
+        - generic [ref=e53]: Old chat — Mar 2024
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - strong [ref=e57]: "3"
+          - generic [ref=e58]: chats selected
+          - generic [ref=e59]: ↵ ↵
+        - button "Delete" [ref=e60] [cursor=pointer]
+  - generic [ref=e61]:
+    - paragraph [ref=e62]: Demo
+    - heading "See it in action" [level=2] [ref=e63]
+    - paragraph [ref=e64]: Watch how fast you can clean up hundreds of chats
+    - iframe [ref=e66]:
+      - generic [active] [ref=f1e1]:
+        - generic "YouTube Video Player" [ref=f1e3]
+        - generic [ref=f1e5]:
+          - generic:
+            - generic:
+              - button "Play video" [ref=f1e10] [cursor=pointer]
+              - button "Hide player controls" [ref=f1e12] [cursor=pointer]
+              - generic [ref=f1e14]:
+                - generic [ref=f1e19]:
+                  - generic [ref=f1e20]:
+                    - link "ChatGPT Chat Overload? Clear Everything in One Move" [ref=f1e21] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=mV_MqBpeKaY
+                    - link "Stanislav Mitkin" [ref=f1e22] [cursor=pointer]:
+                      - /url: /channel/UC4kfjoeCEnjgJ6XYsjPqAqw
+                      - generic [ref=f1e23]: Stanislav Mitkin
+                  - generic [ref=f1e24]:
+                    - button [ref=f1e25] [cursor=pointer]
+                    - generic [ref=f1e27]:
+                      - generic: Stanislav Mitkin
+                      - generic: 16 subscribers
+                - generic [ref=f1e28]:
+                  - button "Share" [ref=f1e31] [cursor=pointer]:
+                    - generic [ref=f1e35]:
+                      - img
+                  - link "Watch on YouTube" [ref=f1e42] [cursor=pointer]:
+                    - /url: https://www.youtube.com/watch?v=mV_MqBpeKaY
+                    - generic [ref=f1e45]:
+                      - text: Watch on
+                      - img [ref=f1e47]:
+                        - generic [ref=f1e49]:
+                          - img
+  - generic [ref=e67]:
+    - generic [ref=e68]:
+      - paragraph [ref=e69]: Features
+      - heading "Everything you need" [level=2] [ref=e70]
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - img [ref=e74]
+        - generic [ref=e77]: Bulk Delete
+        - generic [ref=e78]: Remove dozens or hundreds of conversations in one action.
+      - generic [ref=e79]:
+        - img [ref=e81]
+        - generic [ref=e84]: Keyboard-First
+        - generic [ref=e85]: "Full workflow without touching the mouse: select, confirm, delete."
+      - generic [ref=e86]:
+        - img [ref=e88]
+        - generic [ref=e91]: Select All
+        - generic [ref=e92]: Ctrl+A selects every visible conversation instantly.
+      - generic [ref=e93]:
+        - img [ref=e95]
+        - generic [ref=e98]: Double Confirm
+        - generic [ref=e99]: A second keypress required before deletion — accidental wipes are impossible.
+      - generic [ref=e100]:
+        - img [ref=e102]
+        - generic [ref=e104]: Progress Bar
+        - generic [ref=e105]: Real-time feedback while deletions are processed.
+      - generic [ref=e106]:
+        - img [ref=e108]
+        - generic [ref=e111]: 20 Languages
+        - generic [ref=e112]: UI adapts to your browser locale automatically.
+      - generic [ref=e113]:
+        - img [ref=e115]
+        - generic [ref=e118]: Zero Tracking
+        - generic [ref=e119]: No analytics, no telemetry. All logic runs locally in your browser.
+      - generic [ref=e120]:
+        - img [ref=e122]
+        - generic [ref=e128]: Auto Theme
+        - generic [ref=e129]: Automatically matches ChatGPT's dark or light theme.
+  - generic [ref=e131]:
+    - paragraph [ref=e132]: How it works
+    - heading "Five steps to a clean slate" [level=2] [ref=e133]
+    - list [ref=e134]:
+      - listitem [ref=e135]:
+        - generic [ref=e136]: "1"
+        - generic [ref=e137]: Open chatgpt.com in Chrome
+      - listitem [ref=e138]:
+        - generic [ref=e139]: "2"
+        - generic [ref=e140]: Click "Select chats" or press Ctrl+Shift+K
+      - listitem [ref=e141]:
+        - generic [ref=e142]: "3"
+        - generic [ref=e143]: Click conversations to toggle, or press Ctrl+A to select all
+      - listitem [ref=e144]:
+        - generic [ref=e145]: "4"
+        - generic [ref=e146]: Press Delete — then press again to confirm
+      - listitem [ref=e147]:
+        - generic [ref=e148]: "5"
+        - generic [ref=e149]: Done — selected chats are deleted instantly
+  - generic [ref=e150]:
+    - paragraph [ref=e151]: Shortcuts
+    - heading "Keyboard Shortcuts" [level=2] [ref=e152]
+    - table [ref=e153]:
+      - rowgroup [ref=e154]:
+        - row "Ctrl+Shift+K ⌘⇧K Toggle Selection mode" [ref=e155]:
+          - cell "Ctrl+Shift+K ⌘⇧K" [ref=e156]:
+            - generic [ref=e157]: Ctrl+Shift+K
+            - generic [ref=e158]: ⌘⇧K
+          - cell "Toggle Selection mode" [ref=e159]
+        - row "Click Space Toggle chat selection" [ref=e160]:
+          - cell "Click Space" [ref=e161]:
+            - generic [ref=e162]: Click
+            - generic [ref=e163]: Space
+          - cell "Toggle chat selection" [ref=e164]
+        - row "Ctrl+A ⌘A Select all chats" [ref=e165]:
+          - cell "Ctrl+A ⌘A" [ref=e166]:
+            - generic [ref=e167]: Ctrl+A
+            - generic [ref=e168]: ⌘A
+          - cell "Select all chats" [ref=e169]
+        - row "Ctrl+D ⌘D Clear selection" [ref=e170]:
+          - cell "Ctrl+D ⌘D" [ref=e171]:
+            - generic [ref=e172]: Ctrl+D
+            - generic [ref=e173]: ⌘D
+          - cell "Clear selection" [ref=e174]
+        - row "Enter Enter Confirm and delete" [ref=e175]:
+          - cell "Enter Enter" [ref=e176]:
+            - generic [ref=e177]: Enter
+            - generic [ref=e178]: Enter
+          - cell "Confirm and delete" [ref=e179]
+        - row "Esc Exit Selection mode" [ref=e180]:
+          - cell "Esc" [ref=e181]:
+            - generic [ref=e182]: Esc
+          - cell "Exit Selection mode" [ref=e183]
+  - generic [ref=e185]:
+    - img [ref=e187]
+    - heading "Your privacy is protected" [level=2] [ref=e189]
+    - paragraph [ref=e190]: The extension runs entirely within your browser tab. It uses ChatGPT's own API with your existing login session — no data ever reaches any third-party server.
+    - generic [ref=e191]: "🔒 Only one permission required: access to chatgpt.com"
+  - generic [ref=e192]:
+    - paragraph [ref=e193]: Get started
+    - heading "Ready to clean up?" [level=2] [ref=e194]
+    - paragraph [ref=e195]: Free, open source, takes 10 seconds to install.
+    - link "Add to Chrome — Free" [ref=e196] [cursor=pointer]:
+      - /url: "#"
+      - img [ref=e197]
+      - generic [ref=e200]: Add to Chrome — Free
+  - contentinfo [ref=e201]:
+    - generic [ref=e202]:
+      - generic [ref=e203]:
+        - generic [ref=e205]: ChatGPT Chat Cleaner
+        - generic [ref=e206]: Fast, private, free.
+      - generic [ref=e207]:
+        - link "Install" [ref=e208] [cursor=pointer]:
+          - /url: "#"
+        - link "Source Code" [ref=e209] [cursor=pointer]:
+          - /url: https://github.com/your-username/chatgpt-bulk-delete
+      - generic [ref=e210]: © 2026 ChatGPT Chat Cleaner
