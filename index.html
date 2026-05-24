@@ -50,6 +50,96 @@
     ]
   }
   </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can you delete multiple ChatGPT conversations at once?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ChatGPT has no built-in bulk delete — you can only remove one conversation at a time from the sidebar. ChatGPT Chat Cleaner adds that missing feature: select any number of conversations and delete them all in a single action."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I bulk delete ChatGPT history?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Install ChatGPT Chat Cleaner from the Chrome Web Store. On chatgpt.com, press Ctrl+Shift+K (or ⌘⇧K on Mac) to enter selection mode, click conversations or press Ctrl+A to select all, then press Delete twice to confirm. The extension processes all deletions automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is this different from ChatGPT's built-in 'Delete all chats' option?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ChatGPT's built-in option removes every conversation with no way to choose. ChatGPT Chat Cleaner lets you select exactly which conversations to delete — useful when you want to keep some chats but clean up the rest."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does ChatGPT save all my conversations?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. By default ChatGPT stores every conversation indefinitely unless you delete them or disable history in Settings. ChatGPT Chat Cleaner makes periodic cleanup fast — select and delete months of old chats in seconds."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is ChatGPT Chat Cleaner safe to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The extension uses your existing ChatGPT login session and ChatGPT's own API — no data is ever sent to a third-party server. It requires only one browser permission: access to chatgpt.com. The source code is open on GitHub."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work on Mac?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Use ⌘⇧K to toggle selection mode and ⌘A to select all conversations. The extension works in Chrome on both macOS and Windows."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work with ChatGPT Plus, Team, or Enterprise?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. ChatGPT Chat Cleaner works with all ChatGPT plans — Free, Plus, Team, and Enterprise — as long as you're using Google Chrome."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will deleting conversations affect my ChatGPT account?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Deleting conversations only removes them from your chat history. Your ChatGPT subscription, custom instructions, and account settings are completely unaffected. A double-confirm step prevents accidental deletions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is ChatGPT Chat Cleaner really free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — completely free with no usage limits, no sign-up required, and no paid tier. The extension is open source."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I delete all ChatGPT history on iPhone or Android?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ChatGPT Chat Cleaner is a Chrome extension and requires a desktop browser. On mobile, you can delete conversations one at a time in the ChatGPT app, or use Chrome on Android with the extension installed. For bulk deletion on mobile, the fastest workaround is using ChatGPT's 'Delete all chats' option in Settings > Data controls."
+        }
+      }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -439,6 +529,69 @@
     @media(max-width:400px) {
       .features-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── PERSONAS ── */
+    .personas-section {
+      padding: 80px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .personas-section .features-header { text-align: center; margin-bottom: 48px; }
+    .personas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .persona-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      transition: border-color .2s;
+    }
+    .persona-card:hover { border-color: rgba(16,163,127,0.4); }
+    .persona-emoji { font-size: 24px; margin-bottom: 10px; }
+    .persona-role { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+    .persona-why { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 80px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .faq-inner {
+      max-width: 760px; margin: 0 auto;
+    }
+    .faq-inner .features-header { text-align: center; margin-bottom: 48px; }
+    .faq-list { display: flex; flex-direction: column; gap: 4px; }
+    .faq-item {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .faq-item summary {
+      list-style: none; cursor: pointer;
+      padding: 18px 20px;
+      font-weight: 600; font-size: 15px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+      transition: color .2s;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+'; font-size: 20px; font-weight: 400;
+      color: var(--text-muted); flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+    .faq-item[open] summary { color: var(--accent); }
+    .faq-a {
+      padding: 0 20px 18px;
+      font-size: 14px; color: var(--text-muted); line-height: 1.65;
+    }
+    .faq-a kbd {
+      display: inline-block;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: monospace; font-size: 12px; color: var(--text);
+    }
   </style>
 </head>
 <body>
@@ -711,6 +864,98 @@
     <h2 class="privacy-title" data-i18n="privacy_title">Your privacy is protected</h2>
     <p class="privacy-desc" data-i18n="privacy_desc">The extension runs entirely within your browser tab. It uses ChatGPT's own API with your existing login session — no data ever reaches any third-party server.</p>
     <span class="privacy-perm" data-i18n="privacy_perm">Only one permission required: access to chatgpt.com</span>
+  </div>
+</section>
+
+<!-- WHO IS IT FOR -->
+<section class="personas-section">
+  <div class="features-header">
+    <p class="section-label">Who uses it</p>
+    <h2 class="section-title">Built for every ChatGPT power user</h2>
+  </div>
+  <div class="personas-grid">
+    <div class="persona-card">
+      <div class="persona-emoji">👩‍💻</div>
+      <div class="persona-role">Developers</div>
+      <div class="persona-why">Dozens of coding sessions pile up fast. Bulk-delete old debugging chats without losing the ones that matter.</div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-emoji">✍️</div>
+      <div class="persona-role">Writers</div>
+      <div class="persona-why">Clear out draft brainstorms and editing sessions after a project ships. Keep your sidebar uncluttered.</div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-emoji">🎓</div>
+      <div class="persona-role">Students</div>
+      <div class="persona-why">Delete hundreds of homework and study chats at the end of a semester in one action.</div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-emoji">🔬</div>
+      <div class="persona-role">Researchers</div>
+      <div class="persona-why">Manage large conversation archives. Select and remove whole research threads by date or topic.</div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-emoji">📊</div>
+      <div class="persona-role">Marketers</div>
+      <div class="persona-why">Keep only high-value campaign chats. Wipe exploratory brainstorms you no longer need.</div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-emoji">🔒</div>
+      <div class="persona-role">Privacy-conscious users</div>
+      <div class="persona-why">Regularly purge your ChatGPT history to minimize data stored on OpenAI's servers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="features-header">
+      <p class="section-label">FAQ</p>
+      <h2 class="section-title">Frequently asked questions</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Can you delete multiple ChatGPT conversations at once?</summary>
+        <p class="faq-a">ChatGPT has no built-in bulk delete — you can only remove one conversation at a time from the sidebar. ChatGPT Chat Cleaner adds that missing feature: select any number of conversations and delete them all in a single action.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I bulk delete ChatGPT history?</summary>
+        <p class="faq-a">Install ChatGPT Chat Cleaner from the Chrome Web Store. On chatgpt.com, press <kbd>Ctrl+Shift+K</kbd> (or <kbd>⌘⇧K</kbd> on Mac) to enter selection mode, click conversations or press <kbd>Ctrl+A</kbd> to select all, then press <kbd>Delete</kbd> twice to confirm. The extension processes all deletions automatically.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How is this different from ChatGPT's built-in "Delete all chats" option?</summary>
+        <p class="faq-a">ChatGPT's built-in option removes every conversation with no way to choose which ones. ChatGPT Chat Cleaner lets you select exactly which conversations to delete — useful when you want to keep some chats but clean up the rest.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does ChatGPT save all my conversations?</summary>
+        <p class="faq-a">Yes. By default ChatGPT stores every conversation indefinitely unless you delete them or disable history in Settings → Data controls. ChatGPT Chat Cleaner makes periodic cleanup fast — select and delete months of old chats in seconds.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is ChatGPT Chat Cleaner safe to use?</summary>
+        <p class="faq-a">Yes. The extension uses your existing ChatGPT login session and ChatGPT's own API — no data is ever sent to a third-party server. It requires only one browser permission: access to chatgpt.com. The source code is open on GitHub.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it work on Mac?</summary>
+        <p class="faq-a">Yes. Use <kbd>⌘⇧K</kbd> to toggle selection mode and <kbd>⌘A</kbd> to select all conversations. The extension works in Chrome on both macOS and Windows.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it work with ChatGPT Plus, Team, or Enterprise?</summary>
+        <p class="faq-a">Yes. ChatGPT Chat Cleaner works with all ChatGPT plans — Free, Plus, Team, and Enterprise — as long as you're using Google Chrome.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Will deleting conversations affect my ChatGPT account?</summary>
+        <p class="faq-a">No. Deleting conversations only removes them from your chat history. Your ChatGPT subscription, custom instructions, and account settings are completely unaffected. A double-confirm step (press Delete twice) prevents accidental deletions.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is ChatGPT Chat Cleaner really free?</summary>
+        <p class="faq-a">Yes — completely free with no usage limits, no sign-up required, and no paid tier. The extension is open source and always will be.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I delete all ChatGPT history on iPhone or Android?</summary>
+        <p class="faq-a">ChatGPT Chat Cleaner is a Chrome extension and requires a desktop browser. On mobile the fastest option is ChatGPT's built-in <strong>Settings → Data controls → Delete all chats</strong>. For selective bulk deletion, open chatgpt.com in Chrome on a desktop and use the extension.</p>
+      </details>
+    </div>
   </div>
 </section>
 
